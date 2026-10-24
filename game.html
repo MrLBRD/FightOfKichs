@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kichs Game | Twitch.tv/iti63 | iti63.fr</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Coiny&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100;0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;0,9..40,1000;1,9..40,100;1,9..40,200;1,9..40,300;1,9..40,400;1,9..40,500;1,9..40,600;1,9..40,700;1,9..40,800;1,9..40,900;1,9..40,1000&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="icons/28.png">
+    <style>
+        :root {
+            --base-size: 12px;
+        }
+
+        * {
+            box-sizing: content-box;
+        }
+        h1, h2, h3, h4, h5, p {
+            margin: 0;
+            padding: 0;
+        }
+        body { 
+            height: calc(100vh - 64px);
+            margin: 0;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #BoardGame {
+            width: calc(100% - calc(2 * var(--base-size) * 0.4375));
+            align-self: stretch;
+            flex-grow: 1;
+            border-radius: calc(var(--base-size) * 0.5);
+            border: calc(var(--base-size) * 0.4375) solid #070707;
+            position: relative;
+        }
+        .groupedCardsContainer {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            cursor: grab;
+        }
+        .groupedCardsContainer .cardContainer {
+            position: relative;
+        }
+        .groupedCardsContainer > *:not(:last-child) {
+            margin-bottom: calc(-1 * calc(calc(var(--base-size) * 13.125) - calc(var(--base-size) * 0.375) - var(--base-size) * 1.25));
+        }
+        .cardContainer {
+            position: absolute;
+            display: flex;
+            width: calc(var(--base-size) * 8.4375);
+            height: calc(calc(var(--base-size) * 13.125) - calc(var(--base-size) * 0.375));
+            padding-bottom: calc(var(--base-size) * 0.375);
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.4375) solid #070707;
+            background: #866537;
+            cursor: grab;
+        }
+        /* .cardContainer > * {
+            pointer-events: none;
+        } */
+        .cardContainer[data-type="Player"] {
+            background: #D8D8D8;
+        }
+        .cardContainer[data-type="Player"] :is(svg path, .skillsContainer) {
+            fill: #FFFFFF;
+            color: #FFFFFF;
+        }
+        .cardContainer[data-type="Nourriture"] {
+            background: #F8992C;
+        }
+        .cardContainer[data-type="Nourriture"] :is(svg path, .skillsContainer) {
+            fill: #FFFF58;
+            color: #FFFF58;
+        }
+        .cardContainer[data-type="Ressource"] {
+            background: #5D7F24;
+        }
+        .cardContainer[data-type="Ressource"] :is(svg path, .skillsContainer) {
+            fill: #BAFE48;
+            color: #BAFE48;
+        }
+        .cardContainer[data-type="Batiment"] {
+            background: #AA55B2;
+        }
+        .cardContainer[data-type="Batiment"] :is(svg path, .skillsContainer) {
+            fill: #FFAAFF;
+            color: #FFAAFF;
+        }
+        .cardContainer[data-type="Animaux"] {
+            background: #3788C6;
+        }
+        .cardContainer[data-type="Animaux"] :is(svg path, .skillsContainer) {
+            fill: #6EFFFF;
+            color: #6EFFFF;
+        }
+        .flagContainer {
+            display: flex;
+            font-family: 'Coiny', cursive;
+            height: calc(var(--base-size) * 2);
+        }
+        .leftFlagContainer {
+            display: flex;
+        }
+        .leftFlagContainer svg {
+            width: calc(var(--base-size) * 1.875);
+            height: calc(var(--base-size) * 2);
+        }
+        .middleFlagContainer {
+            display: flex;
+            min-width: calc(var(--base-size) * 3.75);
+            max-width: calc(var(--base-size) * 5.5);
+            flex-direction: column;
+            align-items: center;
+            margin-left: calc(-1 * var(--base-size) * 0.75);
+            z-index: 1;
+        }
+        .middleFlagContainer svg {
+            width: 100%;
+            height: calc(var(--base-size) * 2);
+        }
+        .middleFlagContainer .textFlag {
+            height: calc(var(--base-size) * 2);
+            color: #070707;
+            text-align: center;
+            font-size: var(--base-size);
+            line-height: calc(var(--base-size) * 1.8);
+            margin-bottom: calc(-1 * var(--base-size) * 1.8);
+            padding: 0 calc(var(--base-size) * 0.5);
+            z-index: 1;
+        }
+        .middleFlagContainer .textFlag.fs-m {
+            font-size: calc(var(--base-size) * 0.875);
+        }
+        .middleFlagContainer .textFlag.fs-s {
+            font-size: calc(var(--base-size) * 0.75);
+        }
+        .rightFlagContainer {
+            display: flex;
+            margin-left: calc(-1 * var(--base-size) * 0.775);
+        }
+        .rightFlagContainer svg {
+            width: calc(var(--base-size) * 1.875);
+            height: calc(var(--base-size) * 2);
+        }
+
+        .illustrationContainer {
+            width: 100%;
+            align-self: stretch;
+            flex-grow: 1;
+        }
+        .illustrationContainer img {
+            width: 100%;
+        }
+
+        .skillsContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: 1fr;
+            grid-column-gap: calc(var(--base-size) * 0.5);
+            width: calc(100% - calc(var(--base-size) * 0.75));
+            padding: 0px calc(var(--base-size) * 0.375);
+            justify-content: space-between;
+            align-items: flex-start;
+            align-self: stretch;
+            font-family: 'Coiny', cursive;
+        }
+        .skillsContainer > div {
+            display: flex;
+            height: calc(var(--base-size) * 1.3);
+        }
+        .skillsContainer > .middleSkill {
+            grid-column-start: 2;
+            justify-self: center;
+        }
+        .skillsContainer > .rightSkill {
+            grid-column-start: 3;
+            justify-self: flex-end;
+        }
+        .skillsContainer > :is(.priceSkill, .lifeSkill, .foodSkill) svg {
+            width: calc(var(--base-size) * 1.5);
+            height: calc(var(--base-size) * 1.3);
+        }
+        .skillsContainer > div rect {
+            width: 100%;
+            height: 100%;
+        }
+        .skillsContainer > div text {
+            font-size: 1rem;
+        }
+        .skillsContainer > .fillSkill {
+            display: flex;
+            justify-content: center;
+            font-size: var(--base-size);
+        }
+        :is(.cardContainer, .groupedCardsContainer) .overlay-processing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            opacity: .4;
+            background-color: blue;
+            z-index: 10;
+        }
+        .groupedCardsContainer .overlay-processing {
+            background-color: #FFFFFF;
+            filter: brightness(90%);
+        }
+        .cardContainer[data-type="Player"] .overlay-processing {
+            background-color: #D8D8D8;
+            filter: brightness(80%);
+        }
+        .cardContainer[data-type="Nourriture"] .overlay-processing {
+            background-color: #FFFF58;
+            filter: brightness(90%);
+        }
+        .cardContainer[data-type="Ressource"] .overlay-processing {
+            background-color: #BAFE48;
+            filter: brightness(90%);
+        }
+        .cardContainer[data-type="Batiment"] .overlay-processing {
+            background-color: #FFAAFF;
+            filter: brightness(90%);
+        }
+        .cardContainer[data-type="Animaux"] .overlay-processing {
+            background-color: #6EFFFF;
+            filter: brightness(90%);
+        }
+
+        .deckContainer {
+            position: absolute;
+            width: calc(var(--base-size) * 9);
+            height: calc(var(--base-size) * 15.625);
+            background-image: url(cards/PaquetCard.png);
+            background-repeat: no-repeat;
+            background-size: cover;
+            cursor: pointer;
+        }
+
+        #GameElements {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            z-index: 9998;
+            font-family: 'Coiny', cursive;
+            color: #070707;
+            gap: 8px;
+            pointer-events: none;
+        }
+        #DayDisplayContainer {
+            position: relative;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 210px;
+            height: 36px;
+            padding: 0px 8px;
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.375) solid #070707;
+            background-color: #fff;
+            font-size: 21px;
+            overflow: hidden;
+            /* pointer-events: none; */
+        }
+        #DayDisplayContainer p {
+            z-index: 1;
+        }
+        #DayDisplayContainer #fillDay {
+            position: absolute;
+            background-color: #FADD25;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 36px;
+        }
+        #WalletContainer {
+            display: flex;
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.375) solid #070707;
+            background-color: #fff;
+            padding: 4px 8px;
+            gap: 12px;
+            align-items: center;
+            width: fit-content;
+            height: calc(36px - 8px);
+            pointer-events: all;
+        }
+        #WalletContainer img {
+            width: 21px;
+            height: 21px;
+        }
+        #WalletContainer p {
+            margin-top: 6px;
+            font-size: 24px;
+            line-height: 24px;
+        }
+        #WalletContainer * {
+            pointer-events: none;
+        }
+
+        #ShopElements {
+            display: flex;
+            padding: 6px 12px;
+            align-items: center;
+            gap: 8px;
+            position: absolute;
+            bottom: 8px;
+            left: 12px;
+            z-index: 99999;
+            font-family: 'Coiny', cursive;
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.375) solid #070707;
+            background: #834596;
+            font-size: 21px;
+            cursor: pointer;
+        }
+        #ShopElements:hover {
+            background: #4F2A5B;
+        }
+
+        #endDayContainer {
+            position: absolute;
+            z-index: 9999;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            gap: 48px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        #endDayContainer.blackOverlay {
+            background-color: rgba(7, 7, 7, .4);
+        }
+
+        #endDayContainer .endDayText {
+            color: #6A933C;
+            text-align: center;
+            font-family: 'Coiny', cursive;
+            font-size: 2px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+            animation: popText 1s ease-in forwards;
+            white-space: nowrap;
+        }
+        @keyframes popText {
+            from {
+                font-size: calc(var(--base-size) * 0.005);
+            }
+            90% {
+                font-size: calc(var(--base-size) * 8);
+            }
+            95% {
+                font-size: calc(var(--base-size) * 6);
+            }
+            to {
+                font-size: calc(var(--base-size) * 7.5);
+            }
+        }
+
+        #endDayContainer .titleEndDay {
+            color: #FFF;
+            text-align: center;
+            font-family: 'Coiny', cursive;
+            font-size: calc(var(--base-size) * 5);
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        #endDayContainer .btnSuccess {
+            display: flex;
+            padding: 6px 12px;
+            align-items: center;
+            gap: 8px;
+            bottom: 8px;
+            left: 12px;
+            font-family: 'Coiny', cursive;
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.375) solid #070707;
+            background: #6A933C;
+            font-size: 21px;
+            cursor: pointer;
+        }
+        #endDayContainer.blackOverlay .btnSuccess {
+            border-color: #FFFFFF;
+            color: #FFFFFF;
+        }
+
+        .rewardContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .headRewardContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rewardTitle {
+            color: #FED921;
+            text-align: center;
+            font-family: 'Coiny', cursive;
+            font-size: 32px;
+            line-height: 32px;
+        }
+
+        .rewardText {
+            color: #FFFFFF;
+            text-align: center;
+            font-family: 'DM Sans';
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .choicesContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .orElement {
+            color: #FFF;
+            text-align: center;
+            font-family: 'Coiny', cursive;
+            font-size: 32px;
+        }
+        
+        .choicesContainer img {
+            position: relative;
+        }
+        .choicesContainer img.off {
+            filter: grayscale(1) brightness(40%);
+        }
+        .choicesContainer img.on {
+            outline: 4px solid #6A933C;
+        }
+
+        /* === === === === === === === */
+        /* === == DEBUG DISPLAY == === */
+        /* === === === === === === === */
+        
+        #debugCommands {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            z-index: 99999;
+        }
+        #resetStorage {
+            background-color: #F8992C;
+            padding: 8px 12px;
+            font-family: 'Coiny';
+            border-radius: calc(var(--base-size) * 0.4375);
+            border: calc(var(--base-size) * 0.375) solid #070707;
+            cursor: pointer;
+        }
+        #resetStorage:hover {
+            background-color: #866537;
+        }
+    </style>
+</head>
+<body>
+    <div id="debugCommands">
+        <div id="resetStorage">
+            Reset storage
+        </div>
+    </div>
+    <div id="endDayContainer">
+    </div>
+    <div id="GameElements">
+        <div id="DayDisplayContainer">
+            <p>Jour <span>0</span></p>
+            <div id="fillDay"></div>
+        </div>
+        <div id="WalletContainer">
+            <img src="https://s3-alpha-sig.figma.com/img/f3ba/279f/a288f4db5638712172c9032b58dde54e?Expires=1694390400&Signature=Kjh0z3Otx34F~Rr-nu-hiUCWNOY93LlxtSCvqGtSjr9XeaDg1HSRQvQObSFzjaGEAJf2V1TIt7OcVVbw~Nk3Mdy39RcMxiY4dUIzRt~0CEEcF4FX1ybwrp6AheAIU2NM3deM1-Qh1J569qaCz7AEnoStEX-s-4wVr3fgiAJK3p70hFpZARyKtRFE64oy0~rQyM7MqJuIzd~CivA~ZSLdqBb4KcKmwq7W56XRRSB2gHBspS~CtHvZCwMlDw6QbQ0p4ff4ZjeZDXA6VHnD0f98XU0qbhERfJ6ZIMZt2-VzWcq6FFO5iGeBjytJHJkAvcuZ~Zf8xZogNPvhHOyAC3Bvjg__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4">
+            <p>-</p>
+        </div>
+    </div>
+    <div id="BoardGame">
+
+    </div>
+    <div id="ShopElements">
+        La boutique
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

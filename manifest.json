@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "Kichs Game",
+    "version": "1.0",
+    "description": "Extension de jeu, inspiré par le stream d'Iti63",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "tabs"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_icon": {
+            "28": "icons/28.png",
+            "56": "icons/56.png",
+            "112": "icons/112.png"
+        }
+    },
+    "icons": {
+        "28": "icons/28.png",
+        "56": "icons/56.png",
+        "112": "icons/112.png"
+    },
+    "options_page": "game.html"
+}
